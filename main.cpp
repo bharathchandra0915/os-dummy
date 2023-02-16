@@ -3,6 +3,7 @@
 #include <fstream>
 #include <vector>
 #include<string>  
+#include <chrono>
 
 using namespace std;
 
@@ -57,6 +58,13 @@ vector<vector<vector<int>>> img_to_gray( vector<vector<vector<int>>> image )
     int width = image[0].size() ;
 
     vector<vector<vector<int>>> gray_image(height, vector<vector<int>>(width, vector<int>(3)));
+   
+    // string filename = "outfile.txt";
+    // ifstream file(filename);
+    // if (!file.is_open()) {
+    //     cerr << "Error opening file" << endl;
+    //     exit(1);
+    // }
 
     for (int i = 0; i < height; i++) {
         for (int j = 0; j < width; j++) {
@@ -66,7 +74,6 @@ vector<vector<vector<int>>> img_to_gray( vector<vector<vector<int>>> image )
             g =  image[i][j][1] ;
             b =  image[i][j][2];
             int num = (r+g+b)/3;
-            
             gray_image[i][j][0] = num ;
             gray_image[i][j][1] = num;
             gray_image[i][j][2] = num ;
@@ -107,7 +114,7 @@ void print_to_file(vector<vector<vector<int>>> image )
 
 int main()
 {
-    string filename = "bill.ppm";
+    string filename = "images/bill.ppm";
     int height = 0, width = 0;
     ifstream file(filename, ios::binary);
     if (!file.is_open()) {
@@ -148,8 +155,18 @@ int main()
    
     // printf("Height %d Width %d \n",height, width);
 
-    vector<vector<vector<int>>> bgr_to_blur_image = img_to_blur(image);
+    //// Transformations begin here, so start the time here
+    auto start = chrono::high_resolution_clock::now();
 
-    print_to_file(bgr_to_blur_image);
+    vector<vector<vector<int>>> blur_image = img_to_blur(image);
+    vector<vector<vector<int>>> gray_image = img_to_gray(blur_image);
+
+    // end the time and find the difference
+    auto end = chrono::high_resolution_clock::now();
+    auto duration = chrono::duration_cast< chrono::milliseconds>(end - start);
+    cout << "Time taken: " << duration.count() << " milliseconds." <<endl;
+
+    //// printing needs not to be calculated in time taken
+    print_to_file(gray_image);
     
 }
