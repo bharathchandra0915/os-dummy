@@ -114,7 +114,7 @@ void print_to_file(vector<vector<vector<int>>> image )
 
 int main()
 {
-    string filename = "images/bill.ppm";
+    string filename = "bill.ppm";
     int height = 0, width = 0;
     ifstream file(filename, ios::binary);
     if (!file.is_open()) {
