@@ -86,13 +86,13 @@ vector<vector<vector<int>>> img_to_gray( vector<vector<vector<int>>> image )
 
 }
 
-void print_to_file(vector<vector<vector<int>>> image )
+void print_to_file(vector<vector<vector<int>>> image, char *file )
 {
         
     int height  = image.size();
     int width = image[0].size() ;
     
-    ofstream Myfile("outfile.ppm") ;
+    ofstream Myfile(file) ;
 
     Myfile << "P3\n";
     Myfile << to_string(width)+" ";
@@ -112,9 +112,10 @@ void print_to_file(vector<vector<vector<int>>> image )
 }
 
 
-int main()
+int main(int argc, char** argv)
 {
-    string filename = "bill.ppm";
+    // string filename = "images/bill.ppm";
+    string filename = argv[1];
     int height = 0, width = 0;
     ifstream file(filename, ios::binary);
     if (!file.is_open()) {
@@ -167,6 +168,6 @@ int main()
     cout << "Time taken: " << duration.count() << " milliseconds." <<endl;
 
     //// printing needs not to be calculated in time taken
-    print_to_file(gray_image);
+    print_to_file(gray_image, argv[2]);
     
 }
