@@ -15,7 +15,7 @@ void img_to_blur( vector<vector<vector<int>>> image, vector<vector<vector<int>>>
     int width = image[0].size() ;
     
     // blur_image.resize(height-2, vector<vector<int>>(width-2, vector<int>(3)));
-    cout << blur_image.size();
+//     cout << blur_image.size();
     // vector<vector<vector<int>>> blur_image(height - 2, vector<vector<int>>(width - 2, vector<int>(3)));
    
     /* taking a kernel of radius 1 i.e matrix of 3*3 is formed
