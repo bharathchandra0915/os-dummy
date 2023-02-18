@@ -14,7 +14,7 @@ void img_to_blur( vector<vector<vector<int>>> image, vector<vector<vector<int>>>
     int height  = image.size();
     int width = image[0].size() ;
     
-    blur_image.resize(height-2, vector<vector<int>>(width-2, vector<int>(3)));
+    // blur_image.resize(height-2, vector<vector<int>>(width-2, vector<int>(3)));
     cout << blur_image.size();
     // vector<vector<vector<int>>> blur_image(height - 2, vector<vector<int>>(width - 2, vector<int>(3)));
    
@@ -61,7 +61,7 @@ void img_to_gray( vector<vector<vector<int>>> image, vector<vector<vector<int>>>
     int height  = image.size() ;
     int width = image[0].size() ;
     
-    gray_image.resize(height, vector<vector<int>>(width, vector<int>(3)));
+    // gray_image.resize(height, vector<vector<int>>(width, vector<int>(3)));
 
     // vector<vector<vector<int>>> gray_image(height, vector<vector<int>>(width, vector<int>(3)));
    
@@ -149,8 +149,8 @@ int main(int argc, char** argv)
     }
 
     vector<vector<vector<int>>> image(height, vector<vector<int>>(width, vector<int>(3)));
-    vector<vector<vector<int>>> gray_image;
-    vector<vector<vector<int>>> blur_image;
+    vector<vector<vector<int>>> gray_image(height, vector<vector<int>>(width, vector<int>(3)));
+    vector<vector<vector<int>>> blur_image(height-2, vector<vector<int>>(width-2, vector<int>(3)));
     for (int i = 0; i < height; i++) {
         for (int j = 0; j < width; j++) {
             int r, g, b;
@@ -170,8 +170,8 @@ int main(int argc, char** argv)
     // vector<vector<vector<int>>> blur_image = img_to_blur(image);
     // vector<vector<vector<int>>> gray_image = img_to_gray(blur_image);
 
-    thread t1(img_to_blur, image, ref(blur_image));
-    thread t2(img_to_gray, blur_image, ref(gray_image));
+    thread t1(img_to_gray, image, ref(gray_image));
+    thread t2(img_to_blur, gray_image, ref(blur_image));
 
     t1.join();
     t2.join();
@@ -179,9 +179,9 @@ int main(int argc, char** argv)
     // end the time and find the difference
     auto end = chrono::high_resolution_clock::now();
     auto duration = chrono::duration_cast< chrono::milliseconds>(end - start);
-    // cout << "Time taken: " << duration.count() << " milliseconds." <<endl;
+    cout << "Time taken: " << duration.count() << " milliseconds." <<endl;
 
     //// printing needs not to be calculated in time taken
-    print_to_file(gray_image, argv[2]);
+    print_to_file(blur_image, argv[2]);
     
 }
