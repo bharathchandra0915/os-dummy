@@ -1,3 +1,4 @@
+
 #include <iostream>
 #include <stdio.h>
 #include <fstream>
@@ -10,6 +11,9 @@
 #include <atomic>
 #include <semaphore.h>
 using namespace std;
+
+/// adding again///
+
 
 sem_t binary_semaphore;
 int goBack[2] = {0,0}; // Bits intialized to check if the selected bit is correct
