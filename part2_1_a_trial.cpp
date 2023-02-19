@@ -13,7 +13,7 @@ atomic_flag atomicFlag2False = ATOMIC_FLAG_INIT; // Initializes the atomicFlag t
 int goBack[2] = {0,0}; // Bits intialized to check if the selected bit is correct
 
 
-void img_to_gray( vector<vector<vector<int>>> &image, vector<vector<vector<int>>> &gray_image )
+void img_to_gray( vector<vector<vector<int>>> &image )
 {
     
     int height  = image.size() ;
@@ -40,9 +40,9 @@ void img_to_gray( vector<vector<vector<int>>> &image, vector<vector<vector<int>>
             g =  image[i][j][1] ;
             b =  image[i][j][2];
             int num = (r+g+b)/3;
-            gray_image[i][j][0] = num ;
-            gray_image[i][j][1] = num;
-            gray_image[i][j][2] = num ;
+            image[i][j][0] = num ;
+            image[i][j][1] = num;
+            image[i][j][2] = num ;
 
             goBack[0] = i + 1; goBack[1] = j + 1; // Assignment of goBack to signal signal lock
 
@@ -56,11 +56,13 @@ void img_to_gray( vector<vector<vector<int>>> &image, vector<vector<vector<int>>
 }
 
 
-void img_to_blur( vector<vector<vector<int>>> &image, vector<vector<vector<int>>> &blur_image )
+void img_to_blur( vector<vector<vector<int>>> &image )
 {
     int height  = image.size();
     int width = image[0].size() ;
     int r, g, b;
+   vector<vector<vector<int>>> new_image(height, vector<vector<int>>(width, vector<int>(3)));
+   
     
     // blur_image.resize(height-2, vector<vector<int>>(width-2, vector<int>(3)));
     // cout << blur_image.size();
@@ -81,15 +83,15 @@ void img_to_blur( vector<vector<vector<int>>> &image, vector<vector<vector<int>>
             while (atomic_flag_test_and_set(&atomicFlag2False)); // Spin Lock Insert
                 if(j + 1 <= goBack[1] || i + 1 <= goBack[0])
                 {
-                     r = (image[i-1][j-1][0] + image[i-1][j][0] + image[i-1][j+1][0] +
+                     new_image[i][j][0] = (image[i-1][j-1][0] + image[i-1][j][0] + image[i-1][j+1][0] +
                      image[i][j-1][0] + image[i][j][0] + image[i][j+1][0] +
                      image[i+1][j-1][0] + image[i+1][j][0] + image[i+1][j+1][0])/9;
 
-                      g = (image[i-1][j-1][1] + image[i-1][j][1] + image[i-1][j+1][1] +
+                    new_image[i][j][1] = (image[i-1][j-1][1] + image[i-1][j][1] + image[i-1][j+1][1] +
                      image[i][j-1][1] + image[i][j][1] + image[i][j+1][1] +
                      image[i+1][j-1][1] + image[i+1][j][1] + image[i+1][j+1][1])/9;
             
-                     b = (image[i-1][j-1][2] + image[i-1][j][2] + image[i-1][j+1][2] +
+                     new_image[i][j][2] = (image[i-1][j-1][2] + image[i-1][j][2] + image[i-1][j+1][2] +
                      image[i][j-1][2] + image[i][j][2] + image[i][j+1][2] +
                      image[i+1][j-1][2] + image[i+1][j][2] + image[i+1][j+1][2])/9;
 
@@ -118,9 +120,9 @@ void img_to_blur( vector<vector<vector<int>>> &image, vector<vector<vector<int>>
     {
         for (int j = 1; j< width - 1; j++)
         {
-            blur_image[i-1][j-1][0] = r;
-            blur_image[i-1][j-1][1] = g;
-            blur_image[i-1][j-1][2] = b;
+            image[i-1][j-1][0] = new_image[i][j][0];
+            image[i-1][j-1][1] = new_image[i][j][0];
+            image[i-1][j-1][2] = new_image[i][j][0];
 
         }}
 
@@ -186,8 +188,10 @@ int main(int argc, char** argv)
     }
 
     vector<vector<vector<int>>> image(height, vector<vector<int>>(width, vector<int>(3)));
-    vector<vector<vector<int>>> gray_image(height, vector<vector<int>>(width, vector<int>(3)));
-    vector<vector<vector<int>>> blur_image(height-2, vector<vector<int>>(width-2, vector<int>(3)));
+    // vector<vector<vector<int>>> gray_image(height, vector<vector<int>>(width, vector<int>(3)));
+    // vector<vector<vector<int>>> blur_image(height-2, vector<vector<int>>(width-2, vector<int>(3)));
+    // vector<vector<vector<int>>> final_image(height, vector<vector<int>>(width, vector<int>(3)));
+
     for (int i = 0; i < height; i++) {
         for (int j = 0; j < width; j++) {
             int r, g, b;
@@ -207,8 +211,8 @@ int main(int argc, char** argv)
     // vector<vector<vector<int>>> blur_image = img_to_blur(image);
     // vector<vector<vector<int>>> gray_image = img_to_gray(blur_image);
 
-    thread t1(img_to_gray, ref(image), ref(gray_image));
-    thread t2(img_to_blur, ref(image), ref(blur_image));
+    thread t1(img_to_gray, ref(image));
+    thread t2(img_to_blur, ref(image));
 
     t1.join();
     t2.join();
@@ -219,6 +223,6 @@ int main(int argc, char** argv)
     cout << "Time taken: " << duration.count() << " milliseconds." <<endl;
 
     //// printing needs not to be calculated in time taken
-    print_to_file(blur_image, argv[2]);
+    print_to_file(image, argv[2]);
     
 }
